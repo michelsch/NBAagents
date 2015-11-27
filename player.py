@@ -61,37 +61,44 @@ class Team:
 
 class Player(Team):
 
-'''Defines a player for an NBA team
+'''
+  Defines a player for an NBA team
   Players can be modelled as an MDP
   nodes with corresponding probabilties
   of scoring, fouling, etc.
 
-  Useful published stats about a player (assume given as avg. per game):
-  AGE -- Age
+  Published ESPN stats about a player (assume given as avg. per game):
   GP -- Games Played
-  PTS -- Points scored
-  FGM -- Field goals made (both 2 and 3 pointers)
-  FGA -- Field goals attempted
-  FG% -- Field goals percentage (made/attempted)
-  3PM -- 3P Field goals made
-  3PA -- 3P Field goals attempted
-  3P% -- 3P Field Goal percentage
-  FTM -- Free throws made
-  FTA -- Free throws attempted
-  FT% -- Free throws percentage
-  OREB -- Offensive Rebounds
-  DREB -- Defensive Rebounds
-  REB --  Rebounds
-  AST --  Assists (When a player completes a pass to a teammate
-                        that directly leads to a made field goal)
-  STL -- Steals (Causes a turnover)
-  BLK -- Blocks
-  TOV -- Turnovers (Losing the ball)
-  PF -- Personal Fouls that a player OR team has committed
+  GS -- Games Started
+  MIN -- Minutes per game
+  PPG -- Points per game
+  OFFR -- Offensive Rebounds per game
+  DEFFR -- Defensive Rebounds per game
+  RPG -- Rebounds per game
+  APG -- Assists per game
+  SPG -- Steals per game
+  BPG --  Blocks per game
+  TPG -- Turnovers per game
+  FPG -- Fouls per game
+  A/TO -- Assist to turnover ratio
+  PER -- Player efficiency rating
 
+  FGM --  Field Goals Made per game
+  FGA -- Field Goals Attempted per game
+  FG% --  Field Goals Percentage per game
+  3PM -- Three-point Field Goals Made per game
+  3PA -- Three-point Field Goals Attempted per game
+  3P% -- Three-point Field Goals Percentage per game
+  FTM --  Free Throws Made per game
+  FTA --  Free Throws Attempted per game
+  FT% -- Free Throws Percentage per game
+  2PM --  Two-point Field Goals Made per game
+  2PA -- Two-point Field Goals Attempted per game
+  2P% -- Two-point Field Goals Percentage per game
+  PPS -- Points Per Shot per game
+  AFG% -- Adjusted Field Goal Percentage per game
 '''
   numPlayers = 0
-
   def __init__(self):
 
 class Coach(Team):
