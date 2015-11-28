@@ -2,6 +2,7 @@ from bs4 import BeautifulSoup as bs
 import urllib
 
 def teamsAndLinks():
+  filen = '/users/michelschoemaker/teams_and_links'
   '''returns a dict of team names and links to their respective ESPN pages'''
   team_page = urllib.urlopen('http://espn.go.com/nba/players').read()
   soup = bs(team_page)
@@ -18,12 +19,11 @@ def teamsAndLinks():
     except:
       continue
   #print teamsAndLinks
-  #print len(teamsAndLinks)
   #30 is the number of NBA teams
   assert len(teamsAndLinks) == 30
   return teamsAndLinks
 
-def teamsAndStats(teamDict):
+def teamsAndStats(teamsAndLinks):
   ''' returns a dict of team names and links to their respective
       ESPN stats pages'''
   teamsAndStats = {}
@@ -42,5 +42,35 @@ def teamsAndStats(teamDict):
   #print teamsAndStats
   return teamsAndStats
 
+def teamsAndPlayerStats(teamsAndStats):
+  all_teams = {}
+  for each_team in teamsAndStats:
+    team = {}
+    page = urllib.urlopen(teamsAndStats[each_team])
+    soup = bs(page)
+    players = soup.find_all("tr")
+    for i in range(2,16):
+      stats = []
+      try:
+        for j in range (2,15):
+          try:
+            stats.append(players[i].find_all('td')[j].get_text())
+            #print players[i].find_all('td')[j].get_text()
+            #print ''
+          except:
+            print 'parsing failed for ' + players[i].find_all('td')[j].get_text()
+            continue
+        team[players[i].a.get_text()] = stats
+      except:
+        print 'parsing failed or over bounds for player in ' + each_team
+        continue
+    all_teams[each_team] = team
+  print len(all_teams)
+  #assert len(all_teams) == 30
+  #print all_teams
+  return all_teams
+
+
 teamsAndLinks = teamsAndLinks()
-teamsAndStats(teamsAndLinks)
+teamsAndStats = teamsAndStats(teamsAndLinks)
+#teamsAndPlayerStats = teamsAndPlayerStats(teamsAndStats)
