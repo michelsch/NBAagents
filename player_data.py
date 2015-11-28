@@ -43,6 +43,26 @@ def teamsAndStats(teamsAndLinks):
   return teamsAndStats
 
 def teamsAndPlayerStats(teamsAndStats):
+  '''return a dict of teams which links to another dict
+     for each player of that team whose value is a list of
+     stats with the following indexes (phew!):
+      0 -> GP -- Games Played
+      1 -> GS -- Games Started
+      2 -> MIN -- Minutes per game
+      3-> PPG -- Points per game
+      4 -> OFFR -- Offensive Rebounds per game
+      5 -> DEFFR -- Defensive Rebounds per game
+      6-> RPG -- Rebounds per game
+      7 -> APG -- Assists per game
+      8 -> SPG -- Steals per game
+      9 -> BPG --  Blocks per game
+      10 -> TPG -- Turnovers per game
+      11 -> FPG -- Fouls per game
+      12 -> A/TO -- Assist to turnover ratio
+      13 -> PER -- Player efficiency rating
+      14 -> AFG% -- Adjusted Field Goal Percentage per game
+  '''
+
   all_teams = {}
   for each_team in teamsAndStats:
     team = {}
@@ -52,20 +72,20 @@ def teamsAndPlayerStats(teamsAndStats):
     for i in range(2,16):
       stats = []
       try:
-        for j in range (2,15):
+        for j in range (1,15):
           try:
             stats.append(players[i].find_all('td')[j].get_text())
             #print players[i].find_all('td')[j].get_text()
             #print ''
           except:
-            print 'parsing failed for ' + players[i].find_all('td')[j].get_text()
+            print 'parsing failed for a stat for player' + players[i].find_all('td')[j].get_text()
             continue
         team[players[i].a.get_text()] = stats
       except:
-        print 'parsing failed or over bounds for player in ' + each_team
+        print 'parsing failed for a player or (most likely) less than 14 players in ' + each_team
         continue
     all_teams[each_team] = team
-  print len(all_teams)
+  #print len(all_teams)
   #assert len(all_teams) == 30
   #print all_teams
   return all_teams
@@ -73,4 +93,4 @@ def teamsAndPlayerStats(teamsAndStats):
 
 teamsAndLinks = teamsAndLinks()
 teamsAndStats = teamsAndStats(teamsAndLinks)
-#teamsAndPlayerStats = teamsAndPlayerStats(teamsAndStats)
+teamsAndPlayerStats = teamsAndPlayerStats(teamsAndStats)
