@@ -61,6 +61,10 @@ def teamsAndPlayerStats(teamsAndStats):
       12 -> A/TO -- Assist to turnover ratio
       13 -> PER -- Player efficiency rating
       14 -> AFG% -- Adjusted Field Goal Percentage per game
+
+      example usage:
+      teamsAndPlayerStats['Miami Heat']['Chris Bosh'][0]
+      games played for Chris Bosh, who is in the Miami Heat
   '''
 
   all_teams = {}
