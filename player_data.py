@@ -60,11 +60,26 @@ def teamsAndPlayerStats(teamsAndStats):
       11 -> FPG -- Fouls per game
       12 -> A/TO -- Assist to turnover ratio
       13 -> PER -- Player efficiency rating
-      14 -> AFG% -- Adjusted Field Goal Percentage per game
+      14 -> FGM --  Field Goals Made per game
+      15 -> FGA -- Field Goals Attempted per game
+      16 -> FG% --  Field Goals Percentage per game
+      17 -> 3PM -- Three-point Field Goals Made per game
+      18 -> 3PA -- Three-point Field Goals Attempted per game
+      19 -> 3P% -- Three-point Field Goals Percentage per game
+      20 -> FTM --  Free Throws Made per game
+      21 -> FTA --  Free Throws Attempted per game
+      22 -> FT% -- Free Throws Percentage per game
+      23 -> 2PM --  Two-point Field Goals Made per game
+      24 -> 2PA -- Two-point Field Goals Attempted per game
+      25 -> 2P% -- Two-point Field Goals Percentage per game
+      26 -> PPS -- Points Per Shot per game
+      27 -> AFG% -- Adjusted Field Goal Percentage per game
 
       example usage:
       teamsAndPlayerStats['Miami Heat']['Chris Bosh'][0]
       games played for Chris Bosh, who is in the Miami Heat
+
+      Note: stats are for the 2015-2016 season
   '''
 
   all_teams = {}
@@ -73,7 +88,7 @@ def teamsAndPlayerStats(teamsAndStats):
     page = urllib.urlopen(teamsAndStats[each_team])
     soup = bs(page)
     players = soup.find_all("tr")
-    for i in range(2,16):
+    for i in range(2,len(players)):
       stats = []
       try:
         for j in range (1,15):
@@ -84,13 +99,16 @@ def teamsAndPlayerStats(teamsAndStats):
           except:
             print 'parsing failed for a stat for player' + players[i].find_all('td')[j].get_text()
             continue
-        team[players[i].a.get_text()] = stats
+        if players[i].a.get_text() in team:
+          team[players[i].a.get_text()] += stats
+        #make sure we are appending a name
+        elif len(players[i].a.get_text()) > 5:
+          team[players[i].a.get_text()] = stats
       except:
-        print 'parsing failed for a player or (most likely) less than 14 players in ' + each_team
         continue
     all_teams[each_team] = team
   #print len(all_teams)
-  #assert len(all_teams) == 30
+  assert len(all_teams) == 30
   #print all_teams
   return all_teams
 
