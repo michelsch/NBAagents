@@ -116,3 +116,4 @@ def teamsAndPlayerStats(teamsAndStats):
 teamsAndLinks = teamsAndLinks()
 teamsAndStats = teamsAndStats(teamsAndLinks)
 teamsAndPlayerStats = teamsAndPlayerStats(teamsAndStats)
+print teamsAndPlayerStats
