@@ -35,7 +35,8 @@ def teamsAndStats(teamsAndLinks):
     for item in stats:
       #filter to the link titled Stats
       if 'Stats' == item.get_text():
-        teamsAndStats[team] = item.parent["href"]
+        teamsAndStats[team] = item.parent["href"] + "/year/2014/"
+        break
         #print item.parent["href"]
   #30 is the number of NBA teams
   assert len(teamsAndStats) == 30
@@ -112,8 +113,10 @@ def teamsAndPlayerStats(teamsAndStats):
   #print all_teams
   return all_teams
 
-
-#teamsAndLinks = teamsAndLinks()
-#teamsAndStats = teamsAndStats(teamsAndLinks)
-#teamsAndPlayerStats = teamsAndPlayerStats(teamsAndStats)
-#print teamsAndPlayerStats
+'''
+teamsAndLinks = teamsAndLinks()
+teamsAndStats = teamsAndStats(teamsAndLinks)
+teamsAndPlayerStats = teamsAndPlayerStats(teamsAndStats)
+print teamsAndLinks
+print teamsAndPlayerStats
+'''
