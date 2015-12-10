@@ -93,7 +93,7 @@ def teamsAndPlayerStats(teamsAndStats):
       try:
         for j in range (1,15):
           try:
-            stats.append(players[i].find_all('td')[j].get_text())
+            stats.append(float(players[i].find_all('td')[j].get_text()))
             #print players[i].find_all('td')[j].get_text()
             #print ''
           except:
@@ -113,7 +113,7 @@ def teamsAndPlayerStats(teamsAndStats):
   return all_teams
 
 
-teamsAndLinks = teamsAndLinks()
-teamsAndStats = teamsAndStats(teamsAndLinks)
-teamsAndPlayerStats = teamsAndPlayerStats(teamsAndStats)
-print teamsAndPlayerStats
+#teamsAndLinks = teamsAndLinks()
+#teamsAndStats = teamsAndStats(teamsAndLinks)
+#teamsAndPlayerStats = teamsAndPlayerStats(teamsAndStats)
+#print teamsAndPlayerStats
