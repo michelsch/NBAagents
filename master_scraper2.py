@@ -219,8 +219,7 @@ def getLastNGameStats(data, numGames, team, gameStart):
 	result = []
 	players = getLastGamePlayers(data, team)
 	games = getLastNGames(data, numGames, team, gameStart)
-	if len(games) < numGames:
-		return []
+
 	for player in players:
 		new_player = {}
 		new_player['name'] = player

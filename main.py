@@ -10,7 +10,9 @@ from sklearn import datasets, svm, metrics
 import numpy as np
 import matplotlib.pyplot as plt
 import pickle
-import master_scraper
+import master_scraper2 as master_scraper
+from operator import attrgetter
+
 # Stochastic Gradient Descent
 def SGD(trainExamples, testExamples, featureExtractor):
     '''
@@ -90,7 +92,7 @@ def extractMadeAttempted(s):
 # Setup data pipeline
 out = open("nba_stats.p", "rb")
 stats = pickle.load( out )
-print stats[0]
+#print stats[0]
 out.close()
 teams = []
 
@@ -100,14 +102,22 @@ print temp_stats
 # Find the starting point for training
 features = []
 outcomes = []
-for i in range(len(stats)):
+
+for i in range(102, len(stats)):
     game = stats[i]
     homeTeam = game['home_team']
     awayTeam = game['away_team']
     homeStats = master_scraper.getLastNGameStats(stats, 5, homeTeam, i)
     awayStats = master_scraper.getLastNGameStats(stats, 5, awayTeam, i)
-    if len(homeStats) < 5 or len(awayStats) < 5:
+    if len(homeStats) == 0 or len(awayStats) == 0:
         continue
-    else:
-        print 'home stats for games', i-5, 'to', i, homeStats
-        print 'away stats for games', i-5, 'to', i, awayStats
+    print 'home stats for games', i-5, 'to', i, homeStats
+    print 'away stats for games', i-5, 'to', i, awayStats
+    # convert minutes
+    for stat in homeStats:
+        print 'stat', stat
+        stat['time_played'] = convertTime(stat['time_played'])
+    for stat in awayStats:
+        stat['time_played'] = convertTime(stat['time_played'])
+    homeStats = sorted(homeStats, key=lambda stat: stat['time_played'])
+    awayStats = sorted(awayStats, key=lambda stat: stat['time_played'])
