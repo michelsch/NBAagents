@@ -12,6 +12,8 @@ import matplotlib.pyplot as plt
 import pickle
 import master_scraper
 from operator import attrgetter
+from sklearn import linear_model, svm, datasets, metrics, preprocessing
+
 
 # Stochastic Gradient Descent
 def SGD(trainExamples, testExamples, featureExtractor):
@@ -102,7 +104,9 @@ print temp_stats
 # Find the starting point for training
 allFeatureLists = [] # list of lists of features (each list of features corresponds to the player stats from past 5 games)
 allOutcomes = [] # list of point differences / point spreads (home team score - away team score)
-relevantKeys =['time_played', 'fgm-a', '3pm-a', 'ftm-a', '+/-', 'off', 'def', 'tot', 'ast', 'pf', 'st', 'to', 'bs', 'ba', 'pts']
+#relevantKeys =['time_played', 'fgm-a', '3pm-a', 'ftm-a', '+/-', 'off', 'def', 'tot', 'ast', 'pf', 'st', 'to', 'bs', 'ba', 'pts']
+relevantKeys =['fgm-a', '3pm-a', 'ftm-a', '+/-', 'off', 'def', 'tot', 'ast', 'pf', 'st', 'to']
+#relevantKeys =['time_played', 'fgm-a', '3pm-a', 'ftm-a', '+/-', 'off', 'def', 'tot', 'ast', 'pf', 'st', 'to', 'bs', 'ba', 'pts']
 for i in range(53, len(stats)):
     featureList = [] # List of features for a particular game
     game = stats[i]
@@ -130,7 +134,7 @@ for i in range(53, len(stats)):
                 featureList.append(madeAttemptedFeatures[0])
                 featureList.append(madeAttemptedFeatures[1])
             else:
-                featureList.append(stat[key])
+                featureList.append(float(stat[key]))
     allFeatureLists.append(featureList)
 
     homeScore = 0
@@ -138,11 +142,30 @@ for i in range(53, len(stats)):
 
     for p in game['home_team_player_stats']:
         if p['name'] == 'Total':
-            homeScore = p['pts']
+            homeScore = int(p['pts'])
     for p in game['away_team_player_stats']:
         if p['name'] == 'Total':
-            awayScore = p['pts']
+            awayScore = int(p['pts'])
     allOutcomes.append(homeScore - awayScore)
 
+print len(allOutcomes)
 
+models = [linear_model.LinearRegression(),  linear_model.Ridge (alpha = .1),  linear_model.Ridge (alpha = .5), linear_model.Ridge (alpha = .9), linear_model.Lasso(alpha = 0.1, max_iter = 500000), linear_model.Lasso(alpha = 0.5, max_iter = 500000), linear_model.Lasso(alpha = 0.9, max_iter = 500000), svm.SVC(gamma=0.001)]
+for clf in models:
+    clf.fit(allFeatureLists[:190],allOutcomes[:190])
+    predictions = clf.predict(allFeatureLists)
+    #print predictions
+    #print allOutcomes
+    correctCt = 0
+    for i in range(0,190):
+        #print predictions[i], allOutcomes[i], predictions[i] * allOutcomes[i] > 0
+        if predictions[i] * allOutcomes[i] > 0:
+            correctCt += 1
+    print 'training: ', correctCt, correctCt / 190.0
+    correctCt = 0
+    for i in range(190,len(predictions)):
+        #print predictions[i], allOutcomes[i], predictions[i] * allOutcomes[i] > 0
+        if predictions[i] * allOutcomes[i] > 0:
+            correctCt += 1
+    print 'test: ', correctCt, correctCt / 48.0
 
