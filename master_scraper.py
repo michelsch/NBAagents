@@ -179,9 +179,9 @@ def getLastGamePlayers(data, team):
 
 	return result
 
-def getLastNGames(data, numGames, team):
+def getLastNGames(data, numGames, team, gameStart):
 	result = []
-	for game in reversed(data):
+	for game in reversed(data[0:gameStart]):
 		if game['home_team'] == team:
 			result.append(game['home_team_player_stats'])
 		if game['away_team'] == team:
@@ -208,10 +208,10 @@ def addTime(time1, time2):
 	return str(minutes) + ':' + str(seconds)
 
 # Returns a list containing the stats of each player over the last [numGames] games that played in the last game
-def getLastNGameStats(data, numGames, team):
+def getLastNGameStats(data, numGames, team, gameStart):
 	result = []
 	players = getLastGamePlayers(data, team)
-	games = getLastNGames(data, numGames, team)
+	games = getLastNGames(data, numGames, team, gameStart)
 
 	for player in players:
 		new_player = {}
@@ -270,13 +270,13 @@ for link in links:
 	extractStats(link, stats)
 
 pickle.dump(stats, open( "nba_stats.p", "wb" ))
-'''
 
+'''
 out = open("nba_stats.p", "rb")
 stats = pickle.load( out )
 out.close()
 teams = []
 
-temp_stats = getLastNGameStats(stats, 5, 'Knicks')
+temp_stats = getLastNGameStats(stats, 5, 'Knicks', len(stats))
 print temp_stats
 # printStats(stats[0]['home_team_player_stats'][0])
