@@ -105,7 +105,7 @@ print temp_stats
 allFeatureLists = [] # list of lists of features (each list of features corresponds to the player stats from past 5 games)
 allOutcomes = [] # list of point differences / point spreads (home team score - away team score)
 #relevantKeys =['time_played', 'fgm-a', '3pm-a', 'ftm-a', '+/-', 'off', 'def', 'tot', 'ast', 'pf', 'st', 'to', 'bs', 'ba', 'pts']
-relevantKeys =['fgm-a', '3pm-a', 'ftm-a', '+/-', 'off', 'def', 'tot', 'ast', 'pf', 'st', 'to']
+relevantKeys =['fgm-a', '3pm-a', 'ftm-a', '+/-', 'off', 'def', 'ast', 'pf', 'st', 'to']
 #relevantKeys =['time_played', 'fgm-a', '3pm-a', 'ftm-a', '+/-', 'off', 'def', 'tot', 'ast', 'pf', 'st', 'to', 'bs', 'ba', 'pts']
 for i in range(53, len(stats)):
     featureList = [] # List of features for a particular game
