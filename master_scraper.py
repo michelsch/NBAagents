@@ -151,6 +151,14 @@ def extractStats(link, stats):
 
 	#Add entry to game list
 	stats.append( result )
+
+'''
+Teams:
+
+'''
+
+def getLastGameStats(data, numGames, team):
+	pass
 '''
 links = open('./links').read().splitlines()
 
@@ -160,7 +168,16 @@ for link in links:
 	extractStats(link, stats)
 
 pickle.dump(stats, open( "nba_stats.p", "wb" ))
-'''
-stats = pickle.load( open( "nba_stats.p", "rb" ) )
 
-printStats(stats[0]['home_team_player_stats'][0])
+'''
+out = open("nba_stats.p", "rb")
+stats = pickle.load( out )
+out.close()
+teams = []
+
+for game in stats:
+	teams.append(game['home_team'])
+	teams.append(game['away_team'])
+
+print Set(teams)
+# printStats(stats[0]['home_team_player_stats'][0])
