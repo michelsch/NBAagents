@@ -12,18 +12,18 @@ def generateLinks():
 	currentdate = datetime.date.today() - delta
 
 	# Generate Links to All Games
-	
+
 	while gameday != currentdate:
 		print 'Scraping date ' + str(gameday)
 		url = 'http://www.nba.com/gameline/' + str(gameday.year) + str(gameday.month).zfill(2) + str(gameday.day).zfill(2)
 		game_page = urllib.urlopen(url).read()
 		soup = bs(game_page, "lxml")
-		
+
 	  	for link in soup.find_all("a", { "class" : "recapAnc" }):
 	  		result.append( 'http://www.nba.com' + str(link.get('href')) + '#nbaGIboxscore' )
 
 	  	gameday = gameday + delta
-  	
+
   	f1 = open('./links', 'w+')
   	for link in result:
   		f1.write(link + '\n')
@@ -98,7 +98,7 @@ def extractStats(link, stats):
 
 	#Home team name
 	result['home_team'] = str(team1.find('thead').get('class')[0][5:])
-	
+
 	team2 = soup.find_all('table', {"id" : "nbaGITeamStats"})[1]
 
 	team2_player_stats = []
@@ -148,7 +148,7 @@ def extractStats(link, stats):
 
 	#Away team name
 	result['away_team'] = str(team2.find('thead').get('class')[0][5:])
-	
+
 	#Add entry to game list
 	stats.append( result )
 '''
