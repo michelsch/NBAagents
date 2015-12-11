@@ -3,13 +3,15 @@ import urllib2
 import datetime
 from datetime import timedelta
 import pickle
+from sets import Set
+import urllib
 
-def generateLinks():
+def generateLinks(startDate, endDate):
 	result = []
 
-	gameday = datetime.date(2015, 10, 27)
+	gameday = startDate
 	delta = timedelta(days = 1)
-	currentdate = datetime.date.today() - delta
+	currentdate = endDate - delta
 
 	# Generate Links to All Games
 
@@ -28,7 +30,7 @@ def generateLinks():
   	for link in result:
   		f1.write(link + '\n')
 
-  	print 'obtained links for ' + str(len(result)) + ' total games over ' + str((currentdate - datetime.date(2015, 11, 27)).days) + ' days'
+  	print 'obtained links for ' + str(len(result)) + ' total games over ' + str((currentdate - datetime.date(2015, 10, 27)).days) + ' days'
 
 def readLinks(filename, container):
 	f1 = open(filename, 'r')
@@ -74,6 +76,7 @@ def extractStats(link, stats):
 			new_player['bs'] = entries[14].get_text().encode('utf-8').strip()
 			new_player['ba'] = entries[15].get_text().encode('utf-8').strip()
 			new_player['pts'] = entries[16].get_text().encode('utf-8').strip()
+			team1_player_stats.append(new_player)
 		if len(entries) == 2:
 			new_player['name'] = str(entries[0].get_text())
 			new_player['starting_position'] = entries[1].get_text().encode('utf-8').strip()
@@ -92,7 +95,7 @@ def extractStats(link, stats):
 			new_player['bs'] = 'DNP'
 			new_player['ba'] = 'DNP'
 			new_player['pts'] = 'DNP'
-		team1_player_stats.append(new_player)
+			team1_player_stats.append(new_player)
 
 	result['home_team_player_stats'] = team1_player_stats
 
@@ -109,6 +112,8 @@ def extractStats(link, stats):
 		if len(entries) == 17:
 			new_player['name'] = str(entries[0].get_text())
 			new_player['starting_position'] = entries[1].get_text().encode('utf-8').strip()
+			if new_player['starting_position'] == '\xc2\xa0':
+				new_player['starting_position'] = ''
 			new_player['time_played'] = entries[2].get_text().encode('utf-8').strip()
 			new_player['fgm-a'] = entries[3].get_text().encode('utf-8').strip()
 			new_player['3pm-a'] = entries[4].get_text().encode('utf-8').strip()
@@ -124,25 +129,26 @@ def extractStats(link, stats):
 			new_player['bs'] = entries[14].get_text().encode('utf-8').strip()
 			new_player['ba'] = entries[15].get_text().encode('utf-8').strip()
 			new_player['pts'] = entries[16].get_text().encode('utf-8').strip()
+			team2_player_stats.append(new_player)
 		if len(entries) == 2:
 			new_player['name'] = str(entries[0].get_text())
-			new_player['starting_position'] = entries[1].get_text().encode('utf-8').strip()
-			new_player['time_played'] = 'DNP'
-			new_player['fgm-a'] = 'DNP'
-			new_player['3pm-a'] = 'DNP'
-			new_player['ftm-a'] = 'DNP'
-			new_player['+/-'] = 'DNP'
-			new_player['off'] = 'DNP'
-			new_player['def'] = 'DNP'
-			new_player['tot'] = 'DNP'
-			new_player['ast'] = 'DNP'
-			new_player['pf'] = 'DNP'
-			new_player['st'] = 'DNP'
-			new_player['to'] = 'DNP'
-			new_player['bs'] = 'DNP'
-			new_player['ba'] = 'DNP'
-			new_player['pts'] = 'DNP'
-		team2_player_stats.append(new_player)
+			new_player['starting_position'] = ''
+			new_player['time_played'] = '00:00'
+			new_player['fgm-a'] = '0-0'
+			new_player['3pm-a'] = '0-0'
+			new_player['ftm-a'] = '0-0'
+			new_player['+/-'] = '+0'
+			new_player['off'] = '0'
+			new_player['def'] = '0'
+			new_player['tot'] = '0'
+			new_player['ast'] = '0'
+			new_player['pf'] = '0'
+			new_player['st'] = '0'
+			new_player['to'] = '0'
+			new_player['bs'] = '0'
+			new_player['ba'] = '0'
+			new_player['pts'] = '0'
+			team2_player_stats.append(new_player)
 
 	result['away_team_player_stats'] = team2_player_stats
 
@@ -154,11 +160,107 @@ def extractStats(link, stats):
 
 '''
 Teams:
-
+['Knicks', 'Thunder', 'Hawks', 'Wizards', 'Nuggets', 'Cavaliers', 'Jazz', 'Timberwolves', 'Clippers', 'Bulls', 'Heat', 'Warriors', 'Celtics', 'Magic', 'Mavericks', 'Pelicans', 'Lakers', 'Pacers', 'CHA_Hornets', 'Rockets', 'Kings', 'Raptors', 'Spurs', 'Blazers', 'Pistons', 'Grizzlies', 'Suns', 'Bucks', 'Sixers', 'Nets'])
 '''
 
-def getLastGameStats(data, numGames, team):
-	pass
+def getLastGamePlayers(data, team):
+	result = []
+	for game in reversed(data):
+		if game['home_team'] == team:
+			team = game['home_team_player_stats']
+			break
+		if game['away_team'] == team:
+			team = game['away_team_player_stats']
+			break
+
+	for player in team:
+		if player['name'] != 'Total':
+			result.append(player['name'])
+
+	return result
+
+def getLastNGames(data, numGames, team):
+	result = []
+	for game in reversed(data):
+		if game['home_team'] == team:
+			result.append(game['home_team_player_stats'])
+		if game['away_team'] == team:
+			result.append(game['away_team_player_stats'])
+		if len(result) == numGames:
+			return result
+
+	print 'only ' + len(result) + ' games found, returning games'
+	return result
+
+def addDash(stat1, stat2):
+	first = stat1.partition('-')
+	second = stat2.partition('-')
+	return str(int(first[0]) + int(second[0])) + '-' + str(int(first[2]) + int(second[2]))
+
+def addTime(time1, time2):
+	first = time1.partition(':')
+	second = time2.partition(':')
+	seconds = int(first[2]) + int(second[2])
+	carryover = seconds / 60
+	seconds = seconds % 60
+	minutes = int(first[0]) + int(second[0]) + carryover
+
+	return str(minutes) + ':' + str(seconds)
+
+# Returns a list containing the stats of each player over the last [numGames] games that played in the last game
+def getLastNGameStats(data, numGames, team):
+	result = []
+	players = getLastGamePlayers(data, team)
+	games = getLastNGames(data, numGames, team)
+
+	for player in players:
+		new_player = {}
+		new_player['name'] = player
+		for game in games:
+			for person in game:
+				if person['name'] == new_player['name']:
+					if len(new_player) == 1:
+						new_player['starting_position'] = person['starting_position']
+						new_player['time_played'] = person['time_played']
+						new_player['fgm-a'] = person['fgm-a']
+						new_player['3pm-a'] = person['3pm-a']
+						new_player['ftm-a'] = person['ftm-a']
+						new_player['+/-'] = person['+/-']
+						new_player['off'] = person['off']
+						new_player['def'] = person['def']
+						new_player['tot'] = person['tot']
+						new_player['ast'] = person['ast']
+						new_player['pf'] = person['pf']
+						new_player['st'] = person['st']
+						new_player['to'] = person['to']
+						new_player['bs'] = person['bs']
+						new_player['ba'] = person['ba']
+						new_player['pts'] = person['pts']
+					else:
+						if person['time_played'] == 'DNP':
+							break
+						new_player['time_played'] = addTime(person['time_played'], new_player['time_played'])
+						new_player['fgm-a'] = addDash(person['fgm-a'], new_player['fgm-a'])
+						new_player['3pm-a'] = addDash(person['3pm-a'], new_player['3pm-a'])
+						new_player['ftm-a'] = addDash(person['ftm-a'], new_player['ftm-a'])
+						new_player['+/-'] = str(int(person['+/-']) + int(new_player['+/-']))
+						new_player['off'] = str(int(person['off']) + int(new_player['off']))
+						new_player['def'] = str(int(person['def']) + int(new_player['def']))
+						new_player['tot'] = str(int(person['tot']) + int(new_player['tot']))
+						new_player['ast'] = str(int(person['ast']) + int(new_player['ast']))
+						new_player['pf'] = str(int(person['pf']) + int(new_player['pf']))
+						new_player['st'] = str(int(person['st']) + int(new_player['st']))
+						new_player['to'] = str(int(person['to']) + int(new_player['to']))
+						new_player['bs'] = str(int(person['bs']) + int(new_player['bs']))
+						new_player['ba'] = str(int(person['ba']) + int(new_player['ba']))
+						new_player['pts'] = str(int(new_player['pts']) + int(person['pts']))
+		result.append(new_player)
+
+	return result
+'''
+generateLinks(datetime.date(2015, 10, 27), datetime.date.today())
+
+'''
 '''
 links = open('./links').read().splitlines()
 
@@ -168,16 +270,13 @@ for link in links:
 	extractStats(link, stats)
 
 pickle.dump(stats, open( "nba_stats.p", "wb" ))
-
 '''
+
 out = open("nba_stats.p", "rb")
 stats = pickle.load( out )
 out.close()
 teams = []
 
-for game in stats:
-	teams.append(game['home_team'])
-	teams.append(game['away_team'])
-
-print Set(teams)
+temp_stats = getLastNGameStats(stats, 5, 'Knicks')
+print temp_stats
 # printStats(stats[0]['home_team_player_stats'][0])
