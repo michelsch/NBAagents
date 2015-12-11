@@ -23,23 +23,30 @@ def getPredictions():
 
 
 
-  	for gameTable in soup.find_all("table", { "class" : "data border" }):
-  		#print gameTable
-  		#tbody = gameTable.get('tbody')
-  		tr = gameTable.find_all('tr')
-  		print tr
-  		print tr[0]
-  		tds = tr[0].find_all('td')
-  		print len(tds)
-  		print tds[-3], tds[-1] #.find_all('a')[0]
-  		#result.append( 'http://www.nba.com' + str(gameTable.get('href')) + '#nbaGIboxscore' )
+	  	for gameTable in soup.find_all("table", { "class" : "data border" }):
+	  		#print gameTable
+	  		#tbody = gameTable.get('tbody')
+	  		tb = gameTable.find_all('tbody')[0]
+	  		tr = tb.find_all('tr')[0]
+	  		tds = tr.find_all('td')
+
+	  		print tds[-3].find_all('a'), tds[-1].find_all('a')[0]
+	  		result.append((tds[-3].find_all('a')[0].find_all('img')[0].get('src'), tds[-1].find_all('a')[0].find_all('img')[0].get('src')))
+	  		#result.append( 'http://www.nba.com' + str(gameTable.get('href')) + '#nbaGIboxscore' )
 
 
 	f1 = open('./oracle_predictions', 'w+') # write results
+	print result
+	numPCorrect = 0
 	for game in result:
-		f1.write(game + '\n')
+		status = '0'
+		if game[0] == game[1]:
+			status = '1'
+			numPCorrect += 1
+		f1.write(str(game) + ' ' + status + '\n')
+	print 'oracle\'s correct prediction ratio', float(numPCorrect) / len(result)
 
-	print 'obtained links for ' + str(len(result)) + ' total games over ' + str((currentdate - datetime.date(2015, 11, 27)).days) + ' days'
+	#print 'obtained links for ' + str(len(result)) + ' total games over ' + str((currentdate - datetime.date(2015, 11, 27)).days) + ' days'
 
 
 def extractStats(link, stats):
