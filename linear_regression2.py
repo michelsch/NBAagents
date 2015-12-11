@@ -1,4 +1,4 @@
-from sklearn import linear_model, svm, datasets, metrics
+from sklearn import linear_model, svm, datasets, metrics, preprocessing
 import miami_heat_games2 as mh
 import player_data as data
 import numpy
@@ -58,6 +58,8 @@ if check_dimensions(array_X,13*28):
   #weights = clf.coef_
   #print weights
   #for i in range(11,len(array_X)):
+
+  #check how the rest of the games fare
   predictions = clf.predict(array_X)
   print predictions
   print array_Y
@@ -67,5 +69,5 @@ if check_dimensions(array_X,13*28):
     if predictions[i] * array_Y[i] > 0:
       correctCt += 1
   print correctCt
-#check how the rest of the games fare
-#predictions_and_scores(array_X[11:],array_Y[11:],weights)
+
+
