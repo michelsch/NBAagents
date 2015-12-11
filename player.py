@@ -4,6 +4,11 @@ import heapq
 import util
 import math
 import random
+import player_data
+
+teamsAndLinks = player_data.teamsAndLinks()
+teamsAndStats = player_data.teamsAndStats(teamsAndLinks)
+latest_stats = player_data.teamsAndPlayerStats(teamsAndStats)
 
 '''NBA Teams:
 
@@ -49,77 +54,64 @@ import random
     Phoenix Suns
     Sacramento Kings
 '''
-
 class Team:
 
-'''Defines a team composed of players and a coach
-
-  Useful published stats about a game (assume given as avg. per game):
-'''
-
-  def __init__(self):
-
-class Player(Team):
-
-'''
-  Defines a player for an NBA team
-  Players can be modelled as an MDP
-  nodes with corresponding probabilties
-  of scoring, fouling, etc.
-
-  Published ESPN stats about a player (assume given as avg. per game):
-  GP -- Games Played
-  GS -- Games Started
-  MIN -- Minutes per game
-  PPG -- Points per game
-  OFFR -- Offensive Rebounds per game
-  DEFFR -- Defensive Rebounds per game
-  RPG -- Rebounds per game
-  APG -- Assists per game
-  SPG -- Steals per game
-  BPG --  Blocks per game
-  TPG -- Turnovers per game
-  FPG -- Fouls per game
-  A/TO -- Assist to turnover ratio
-  PER -- Player efficiency rating
-
-  FGM --  Field Goals Made per game
-  FGA -- Field Goals Attempted per game
-  FG% --  Field Goals Percentage per game
-  3PM -- Three-point Field Goals Made per game
-  3PA -- Three-point Field Goals Attempted per game
-  3P% -- Three-point Field Goals Percentage per game
-  FTM --  Free Throws Made per game
-  FTA --  Free Throws Attempted per game
-  FT% -- Free Throws Percentage per game
-  2PM --  Two-point Field Goals Made per game
-  2PA -- Two-point Field Goals Attempted per game
-  2P% -- Two-point Field Goals Percentage per game
-  PPS -- Points Per Shot per game
-  AFG% -- Adjusted Field Goal Percentage per game
-'''
-  numPlayers = 0
-  def __init__(self):
-
-class Coach(Team):
-
-'''Defines a coach for an NBA team.
-   Coaches will choose player placements
-   strategically following a minimax policy
-   in regards to the other opposing coach
-'''
-
-  def __init__(self):
+ '''
+ Defines a team composed of players and a coachg
+ Useful published stats about a game (assume given as avg. per game):
+ '''
+ def __init__(self, team_data):
+    self.team_data = team_data
+    self.players = []
+    for player in team_data:
+      self.players.append(player)
 
 
+#this implementation taken from http://stackoverflow.com/questions/1556232/how-to-select-an-item-from-a-list-with-known-percentages-in-python
+class WeightedChoice(object):
+  def __init__(self, weights):
+    self._total_weight = 0
+    self._item_levels = []
+    for item, weight in weights:
+      self._total_weight += weight
+      self._item_levels.append((self._total_weight, item))
 
-#Option: Model Players as Agents and follow an MDP:
+  def pick(self):
+    pick = self._total_weight * random.random()
+    for level, item in self._item_levels:
+      if level >= pick:
+        return item
 
 # An abstract class representing a Markov Decision Process (MDP).
 class MDP:
-    # Return the start state.
-    #For example, starting players and time
-    def startState(self): raise NotImplementedError("Override me")
+
+  def __init__(self, home_team, away_team):
+    self.time_left = 42
+    self.home_team = home_team
+    self.away_team = away_team
+    self.home_players_and_minutes_played = [(player,latest_stats[home_team][player][2]) for player in latest_stats[home_team]]
+    self.away_players_and_minutes_played = [(player,latest_stats[away_team][player][2]) for player in latest_stats[away_team]]
+    self.home_team_score = 0
+    self.away_team_score = 0
+    self.home_team_picked_players = []
+    self.away_team_picked_players = []
+
+  # Return the start state.
+  #a tuple of starting players and initial time left of 42 min
+  def startState(self):
+    for i in range(0,5):
+      choices = WeightedChoice(self.home_players_and_minutes_played)
+      picked_player = choices.pick()
+      self.home_team_picked_players.append(picked_player)
+      minutes = latest_stats[self.home_team][picked_player][2]
+      self.home_players_and_minutes_played.remove((picked_player,minutes))
+    for i in range(0,5):
+      choices = WeightedChoice(self.away_players_and_minutes_played)
+      picked_player = choices.pick()
+      self.away_team_picked_players.append(picked_player)
+      minutes = latest_stats[self.away_team][picked_player][2]
+      self.away_players_and_minutes_played.remove((picked_player,minutes))
+    return (self.home_team_picked_players,self.away_team_picked_players,self.time_left)
 
     # Return set of actions possible from |state|.
     def actions(self, state): raise NotImplementedError("Override me")
@@ -150,13 +142,6 @@ class MDP:
                         queue.append(newState)
         # print "%d states" % len(self.states)
         # print self.states
-
-
-#Another Option: Model as an actual game
-
-
-#Food for thought: Can we combine both
-
 
 """
  Data structures useful for implementing SearchAgents
@@ -223,3 +208,7 @@ class PriorityQueue:
 
   def isEmpty(self):
     return len(self.heap) == 0
+
+
+test_game = MDP('Miami Heat','Orlando Magic')
+test_game.startState()
