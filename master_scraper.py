@@ -61,6 +61,8 @@ def extractStats(link, stats):
 		if len(entries) == 17:
 			new_player['name'] = str(entries[0].get_text())
 			new_player['starting_position'] = entries[1].get_text().encode('utf-8').strip()
+			if new_player['starting_position'] == '\xc2\xa0':
+				new_player['starting_position'] = ''
 			new_player['time_played'] = entries[2].get_text().encode('utf-8').strip()
 			new_player['fgm-a'] = entries[3].get_text().encode('utf-8').strip()
 			new_player['3pm-a'] = entries[4].get_text().encode('utf-8').strip()
@@ -195,7 +197,12 @@ def getLastNGames(data, numGames, team, gameStart):
 def addDash(stat1, stat2):
 	first = stat1.partition('-')
 	second = stat2.partition('-')
-	return str(int(first[0]) + int(second[0])) + '-' + str(int(first[2]) + int(second[2]))
+	try:
+		result = str(int(first[0]) + int(second[0])) + '-' + str(int(first[2]) + int(second[2]))
+	except ValueError:
+		print 'stat1: ' + stat1, 'stat2: ' + stat2
+		return '0-0'
+	return result
 
 def addTime(time1, time2):
 	first = time1.partition(':')
@@ -220,40 +227,61 @@ def getLastNGameStats(data, numGames, team, gameStart):
 			for person in game:
 				if person['name'] == new_player['name']:
 					if len(new_player) == 1:
-						new_player['starting_position'] = person['starting_position']
-						new_player['time_played'] = person['time_played']
-						new_player['fgm-a'] = person['fgm-a']
-						new_player['3pm-a'] = person['3pm-a']
-						new_player['ftm-a'] = person['ftm-a']
-						new_player['+/-'] = person['+/-']
-						new_player['off'] = person['off']
-						new_player['def'] = person['def']
-						new_player['tot'] = person['tot']
-						new_player['ast'] = person['ast']
-						new_player['pf'] = person['pf']
-						new_player['st'] = person['st']
-						new_player['to'] = person['to']
-						new_player['bs'] = person['bs']
-						new_player['ba'] = person['ba']
-						new_player['pts'] = person['pts']
+						if person['time_played'] == '00:00':
+							new_player['starting_position'] = ''
+							new_player['time_played'] = '00:00'
+							new_player['fgm-a'] = '0-0'
+							new_player['3pm-a'] = '0-0'
+							new_player['ftm-a'] = '0-0'
+							new_player['+/-'] = '+0'
+							new_player['off'] = '0'
+							new_player['def'] = '0'
+							new_player['tot'] = '0'
+							new_player['ast'] = '0'
+							new_player['pf'] = '0'
+							new_player['st'] = '0'
+							new_player['to'] = '0'
+							new_player['bs'] = '0'
+							new_player['ba'] = '0'
+							new_player['pts'] = '0'
+						else:
+							new_player['starting_position'] = person['starting_position']
+							new_player['time_played'] = person['time_played']
+							new_player['fgm-a'] = person['fgm-a']
+							new_player['3pm-a'] = person['3pm-a']
+							new_player['ftm-a'] = person['ftm-a']
+							new_player['+/-'] = person['+/-']
+							new_player['off'] = person['off']
+							new_player['def'] = person['def']
+							new_player['tot'] = person['tot']
+							new_player['ast'] = person['ast']
+							new_player['pf'] = person['pf']
+							new_player['st'] = person['st']
+							new_player['to'] = person['to']
+							new_player['bs'] = person['bs']
+							new_player['ba'] = person['ba']
+							new_player['pts'] = person['pts']
 					else:
-						if person['time_played'] == 'DNP':
-							break
-						new_player['time_played'] = addTime(person['time_played'], new_player['time_played'])
-						new_player['fgm-a'] = addDash(person['fgm-a'], new_player['fgm-a'])
-						new_player['3pm-a'] = addDash(person['3pm-a'], new_player['3pm-a'])
-						new_player['ftm-a'] = addDash(person['ftm-a'], new_player['ftm-a'])
-						new_player['+/-'] = str(int(person['+/-']) + int(new_player['+/-']))
-						new_player['off'] = str(int(person['off']) + int(new_player['off']))
-						new_player['def'] = str(int(person['def']) + int(new_player['def']))
-						new_player['tot'] = str(int(person['tot']) + int(new_player['tot']))
-						new_player['ast'] = str(int(person['ast']) + int(new_player['ast']))
-						new_player['pf'] = str(int(person['pf']) + int(new_player['pf']))
-						new_player['st'] = str(int(person['st']) + int(new_player['st']))
-						new_player['to'] = str(int(person['to']) + int(new_player['to']))
-						new_player['bs'] = str(int(person['bs']) + int(new_player['bs']))
-						new_player['ba'] = str(int(person['ba']) + int(new_player['ba']))
-						new_player['pts'] = str(int(new_player['pts']) + int(person['pts']))
+						try:
+							if person['time_played'] == 'DNP' or person['time_played'] == '00:00':
+								break
+							new_player['time_played'] = addTime(person['time_played'], new_player['time_played'])
+							new_player['fgm-a'] = addDash(person['fgm-a'], new_player['fgm-a'])
+							new_player['3pm-a'] = addDash(person['3pm-a'], new_player['3pm-a'])
+							new_player['ftm-a'] = addDash(person['ftm-a'], new_player['ftm-a'])
+							new_player['+/-'] = str(int(person['+/-']) + int(new_player['+/-']))
+							new_player['off'] = str(int(person['off']) + int(new_player['off']))
+							new_player['def'] = str(int(person['def']) + int(new_player['def']))
+							new_player['tot'] = str(int(person['tot']) + int(new_player['tot']))
+							new_player['ast'] = str(int(person['ast']) + int(new_player['ast']))
+							new_player['pf'] = str(int(person['pf']) + int(new_player['pf']))
+							new_player['st'] = str(int(person['st']) + int(new_player['st']))
+							new_player['to'] = str(int(person['to']) + int(new_player['to']))
+							new_player['bs'] = str(int(person['bs']) + int(new_player['bs']))
+							new_player['ba'] = str(int(person['ba']) + int(new_player['ba']))
+							new_player['pts'] = str(int(new_player['pts']) + int(person['pts']))
+						except ValueError:
+							print "Error", person, new_player
 		result.append(new_player)
 
 	return result
@@ -278,4 +306,24 @@ teams = []
 temp_stats = getLastNGameStats(stats, 5, 'Knicks', len(stats))
 print temp_stats
 # printStats(stats[0]['home_team_player_stats'][0])
+'''
+'''
+out = open("nba_stats.p", "rb")
+stats = pickle.load( out )
+out.close()
+
+# Find the starting point for training
+features = []
+outcomes = []
+for i in range(len(stats)):
+    game = stats[i]
+    homeTeam = game['home_team']
+    awayTeam = game['away_team']
+    homeStats = getLastNGameStats(stats, 5, homeTeam, i)
+    awayStats = getLastNGameStats(stats, 5, awayTeam, i)
+    if len(homeStats) < 5 or len(awayStats) < 5:
+        continue
+
+    # print homeStats
+    # print awayStats
 '''
