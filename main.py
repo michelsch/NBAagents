@@ -10,7 +10,7 @@ from sklearn import datasets, svm, metrics
 import numpy as np
 import matplotlib.pyplot as plt
 import pickle
-import master_scraper2 as master_scraper
+import master_scraper
 from operator import attrgetter
 
 # Stochastic Gradient Descent
@@ -91,7 +91,7 @@ def extractMadeAttempted(s):
 
 # Setup data pipeline
 out = open("nba_stats.p", "rb")
-stats = pickle.load( out )
+stats = pickle.load( out ) # all previous game stats for this season
 #print stats[0]
 out.close()
 teams = []
@@ -100,11 +100,13 @@ temp_stats = master_scraper.getLastNGameStats(stats, 5, 'Knicks', len(stats))
 print temp_stats
 
 # Find the starting point for training
-features = []
-outcomes = []
-
-for i in range(102, len(stats)):
+allFeatureLists = [] # list of lists of features (each list of features corresponds to the player stats from past 5 games)
+allOutcomes = [] # list of point differences / point spreads (home team score - away team score)
+relevantKeys =['time_played', 'fgm-a', '3pm-a', 'ftm-a', '+/-', 'off', 'def', 'tot', 'ast', 'pf', 'st', 'to', 'bs', 'ba', 'pts']
+for i in range(53, len(stats)):
+    featureList = [] # List of features for a particular game
     game = stats[i]
+
     homeTeam = game['home_team']
     awayTeam = game['away_team']
     homeStats = master_scraper.getLastNGameStats(stats, 5, homeTeam, i)
@@ -121,3 +123,26 @@ for i in range(102, len(stats)):
         stat['time_played'] = convertTime(stat['time_played'])
     homeStats = sorted(homeStats, key=lambda stat: stat['time_played'])
     awayStats = sorted(awayStats, key=lambda stat: stat['time_played'])
+    for stat in homeStats:
+        for key in relevantKeys:
+            if '-a' in key:
+                madeAttemptedFeatures = extractMadeAttempted(stat[key])
+                featureList.append(madeAttemptedFeatures[0])
+                featureList.append(madeAttemptedFeatures[1])
+            else:
+                featureList.append(stat[key])
+    allFeatureLists.append(featureList)
+
+    homeScore = 0
+    awayScore = 0
+
+    for p in game['home_team_player_stats']:
+        if p['name'] == 'Total':
+            homeScore = p['pts']
+    for p in game['away_team_player_stats']:
+        if p['name'] == 'Total':
+            awayScore = p['pts']
+    allOutcomes.append(homeScore - awayScore)
+
+
+

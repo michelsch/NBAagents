@@ -324,6 +324,7 @@ def getLastNGameStats(data, numGames, team, gameStart):
 		player['bs'] = '0'
 		player['ba'] = '0'
 		player['pts'] = '0'
+		result.append(player)
 
 	return result
 '''
