@@ -9,6 +9,8 @@ from util import *
 from sklearn import datasets, svm, metrics
 import numpy as np
 import matplotlib.pyplot as plt
+import pickle
+import master_scraper
 # Stochastic Gradient Descent
 def SGD(trainExamples, testExamples, featureExtractor):
     '''
@@ -71,3 +73,28 @@ trainError = evaluatePredictor(trainExamples, lambda(x) : (1 if dotProduct(featu
 devError = evaluatePredictor(devExamples, lambda(x) : (1 if dotProduct(featureExtractor(x), weights) >= 0 else -1))
 print "Official: train error = %s, dev error = %s" % (trainError, devError)
 '''
+
+# Setup data pipeline
+out = open("nba_stats.p", "rb")
+stats = pickle.load( out )
+print stats[0]
+out.close()
+teams = []
+
+temp_stats = master_scraper.getLastNGameStats(stats, 5, 'Knicks', len(stats))
+print temp_stats
+
+# Find the starting point for training
+features = []
+outcomes = []
+for i in range(len(stats)):
+    game = stats[i]
+    homeTeam = game['home_team']
+    awayTeam = game['away_team']
+    homeStats = master_scraper.getLastNGameStats(stats, 5, homeTeam, i)
+    awayStats = master_scraper.getLastNGameStats(stats, 5, awayTeam, i)
+    if len(homeStats) < 5 or len(awayStats) < 5:
+        continue
+
+    print homeStats
+    print awayStats

@@ -31,7 +31,14 @@ def getPredictions():
 	  		tds = tr.find_all('td')
 
 	  		print tds[-3].find_all('a'), tds[-1].find_all('a')[0]
-	  		result.append((tds[-3].find_all('a')[0].find_all('img')[0].get('src'), tds[-1].find_all('a')[0].find_all('img')[0].get('src')))
+	  		team1 = tds[-3].find_all('a')[0].find_all('img')[0].get('src')[-7:-4]
+	  		team2 = tds[-1].find_all('a')[0].find_all('img')[0].get('src')[-7:-4]
+	  		if '/' in team1:
+	  			team1 = team1[1:]
+	  		if '/' in team2:
+	  			team2 = team2[1:]
+	  		result.append((team1, team2))
+
 	  		#result.append( 'http://www.nba.com' + str(gameTable.get('href')) + '#nbaGIboxscore' )
 
 

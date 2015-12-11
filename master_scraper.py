@@ -189,7 +189,7 @@ def getLastNGames(data, numGames, team, gameStart):
 		if len(result) == numGames:
 			return result
 
-	print 'only ' + len(result) + ' games found, returning games'
+	print 'only ' + str(len(result)) + ' games found, returning games'
 	return result
 
 def addDash(stat1, stat2):
