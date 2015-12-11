@@ -74,6 +74,19 @@ devError = evaluatePredictor(devExamples, lambda(x) : (1 if dotProduct(featureEx
 print "Official: train error = %s, dev error = %s" % (trainError, devError)
 '''
 
+def convertTime(s):
+    '''
+    Takes a string s in the form 'MM:SS' and converts it to a float MM.xx... which represents number of minutes.
+    '''
+    first = s.partition(':')
+    return float(first[0]) + float(first[2]) / 60.0
+def extractMadeAttempted(s):
+    '''
+    Takes a string s in the form 'made-attempted' and returns (made, attempted).
+    '''
+    first = s.partition('-')
+    return (float(first[0]),float(first[2]))
+
 # Setup data pipeline
 out = open("nba_stats.p", "rb")
 stats = pickle.load( out )
@@ -95,6 +108,6 @@ for i in range(len(stats)):
     awayStats = master_scraper.getLastNGameStats(stats, 5, awayTeam, i)
     if len(homeStats) < 5 or len(awayStats) < 5:
         continue
-
-    print homeStats
-    print awayStats
+    else:
+        print 'home stats for games', i-5, 'to', i, homeStats
+        print 'away stats for games', i-5, 'to', i, awayStats
