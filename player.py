@@ -97,7 +97,9 @@ class MDP:
     self.away_team_picked_players = []
 
   # Return the start state.
-  #a tuple of starting players and initial time left of 42 min
+  #  returns a tuple of player holding the ball,
+  # starting picked players and initial time left of 42 min as follows:
+  # (player_holding,time_left, home_team_picked_players, away_team_picked_players)
   def startState(self):
     for i in range(0,5):
       choices = WeightedChoice(self.home_players_and_minutes_played)
@@ -111,35 +113,50 @@ class MDP:
       self.away_team_picked_players.append(picked_player)
       minutes = latest_stats[self.away_team][picked_player][2]
       self.away_players_and_minutes_played.remove((picked_player,minutes))
-    return (self.home_team_picked_players,self.away_team_picked_players,self.time_left)
+    player_holding = random.choice(self.home_team_picked_players + self.away_team_picked_players)
+    return (player_holding,self.time_left,self.home_team_picked_players,self.away_team_picked_players)
+
+  def isEnd(self):
+    return self.time_left == 0
 
     # Return set of actions possible from |state|.
-    def actions(self, state): raise NotImplementedError("Override me")
+  def actions(self, state):
+    return ['no change','pass_ball','lose_ball','try_to_score']
 
     # Return a list of (newState, prob, reward) tuples corresponding to edges
     # coming out of |state|.
     # Mapping to notation from class:
     #   state = s, action = a, newState = s', prob = T(s, a, s'), reward = Reward(s, a, s')
     # If IsEnd(state), return the empty list.
-    def succAndProbReward(self, state, action): raise NotImplementedError("Override me")
+  def succAndProbReward(self, state, action):
+    if isEnd(self):
+      return []
+    if action == 'no change':
+      pass
+    if action == 'pass_ball':
+      pass
+    if action == 'lose_ball':
+      pass
+    if action == 'try_to_score':
+      pass
 
-    def discount(self): raise NotImplementedError("Override me")
+  def discount(self): return 1
 
     # Compute set of states reachable from startState.  Helper function for
     # MDPAlgorithms to know which states to compute values and policies for.
     # This function sets |self.states| to be the set of all states.
-    def computeStates(self):
-        self.states = set()
-        queue = []
-        self.states.add(self.startState())
-        queue.append(self.startState())
-        while len(queue) > 0:
-            state = queue.pop()
-            for action in self.actions(state):
-                for newState, prob, reward in self.succAndProbReward(state, action):
-                    if newState not in self.states:
-                        self.states.add(newState)
-                        queue.append(newState)
+  def computeStates(self):
+    self.states = set()
+    queue = []
+    self.states.add(self.startState())
+    queue.append(self.startState())
+    while len(queue) > 0:
+      state = queue.pop()
+      for action in self.actions(state):
+        for newState, prob, reward in self.succAndProbReward(state, action):
+          if newState not in self.states:
+            self.states.add(newState)
+            queue.append(newState)
         # print "%d states" % len(self.states)
         # print self.states
 
@@ -211,4 +228,4 @@ class PriorityQueue:
 
 
 test_game = MDP('Miami Heat','Orlando Magic')
-test_game.startState()
+print test_game.startState()
