@@ -79,22 +79,22 @@ def extractStats(link, stats):
 			team1_player_stats.append(new_player)
 		if len(entries) == 2:
 			new_player['name'] = str(entries[0].get_text())
-			new_player['starting_position'] = entries[1].get_text().encode('utf-8').strip()
-			new_player['time_played'] = 'DNP'
-			new_player['fgm-a'] = 'DNP'
-			new_player['3pm-a'] = 'DNP'
-			new_player['ftm-a'] = 'DNP'
-			new_player['+/-'] = 'DNP'
-			new_player['off'] = 'DNP'
-			new_player['def'] = 'DNP'
-			new_player['tot'] = 'DNP'
-			new_player['ast'] = 'DNP'
-			new_player['pf'] = 'DNP'
-			new_player['st'] = 'DNP'
-			new_player['to'] = 'DNP'
-			new_player['bs'] = 'DNP'
-			new_player['ba'] = 'DNP'
-			new_player['pts'] = 'DNP'
+			new_player['starting_position'] = ''
+			new_player['time_played'] = '00:00'
+			new_player['fgm-a'] = '0-0'
+			new_player['3pm-a'] = '0-0'
+			new_player['ftm-a'] = '0-0'
+			new_player['+/-'] = '+0'
+			new_player['off'] = '0'
+			new_player['def'] = '0'
+			new_player['tot'] = '0'
+			new_player['ast'] = '0'
+			new_player['pf'] = '0'
+			new_player['st'] = '0'
+			new_player['to'] = '0'
+			new_player['bs'] = '0'
+			new_player['ba'] = '0'
+			new_player['pts'] = '0'
 			team1_player_stats.append(new_player)
 
 	result['home_team_player_stats'] = team1_player_stats
@@ -260,8 +260,6 @@ def getLastNGameStats(data, numGames, team, gameStart):
 '''
 generateLinks(datetime.date(2015, 10, 27), datetime.date.today())
 
-'''
-'''
 links = open('./links').read().splitlines()
 
 stats = []
@@ -271,7 +269,7 @@ for link in links:
 
 pickle.dump(stats, open( "nba_stats.p", "wb" ))
 
-'''
+
 out = open("nba_stats.p", "rb")
 stats = pickle.load( out )
 out.close()
@@ -280,3 +278,4 @@ teams = []
 temp_stats = getLastNGameStats(stats, 5, 'Knicks', len(stats))
 print temp_stats
 # printStats(stats[0]['home_team_player_stats'][0])
+'''
