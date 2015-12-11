@@ -5,6 +5,7 @@ from datetime import timedelta
 import pickle
 from sets import Set
 import urllib
+from operator import attrgetter
 
 def generateLinks(startDate, endDate):
 	result = []
@@ -139,7 +140,7 @@ def extractStats(link, stats):
 			new_player['fgm-a'] = '0-0'
 			new_player['3pm-a'] = '0-0'
 			new_player['ftm-a'] = '0-0'
-			new_player['+/-'] = '+0'
+			new_player['+/-'] = '0'
 			new_player['off'] = '0'
 			new_player['def'] = '0'
 			new_player['tot'] = '0'
@@ -234,7 +235,7 @@ def getLastNGameStats(data, numGames, team, gameStart):
 							new_player['fgm-a'] = '0-0'
 							new_player['3pm-a'] = '0-0'
 							new_player['ftm-a'] = '0-0'
-							new_player['+/-'] = '+0'
+							new_player['+/-'] = '0'
 							new_player['off'] = '0'
 							new_player['def'] = '0'
 							new_player['tot'] = '0'
@@ -285,6 +286,45 @@ def getLastNGameStats(data, numGames, team, gameStart):
 							print "Error", person, new_player
 		result.append(new_player)
 
+	for player in result:
+		if len(player) == 1:
+			player['starting_position'] = ''
+			player['time_played'] = '00:00'
+			player['fgm-a'] = '0-0'
+			player['3pm-a'] = '0-0'
+			player['ftm-a'] = '0-0'
+			player['+/-'] = '0'
+			player['off'] = '0'
+			player['def'] = '0'
+			player['tot'] = '0'
+			player['ast'] = '0'
+			player['pf'] = '0'
+			player['st'] = '0'
+			player['to'] = '0'
+			player['bs'] = '0'
+			player['ba'] = '0'
+			player['pts'] = '0'
+
+	while len(result) < 13:
+		player = {}
+		player['name'] = 'Roster Filler'
+		player['starting_position'] = ''
+		player['time_played'] = '00:00'
+		player['fgm-a'] = '0-0'
+		player['3pm-a'] = '0-0'
+		player['ftm-a'] = '0-0'
+		player['+/-'] = '0'
+		player['off'] = '0'
+		player['def'] = '0'
+		player['tot'] = '0'
+		player['ast'] = '0'
+		player['pf'] = '0'
+		player['st'] = '0'
+		player['to'] = '0'
+		player['bs'] = '0'
+		player['ba'] = '0'
+		player['pts'] = '0'
+
 	return result
 '''
 generateLinks(datetime.date(2015, 10, 27), datetime.date.today())
@@ -328,3 +368,6 @@ for i in range(len(stats)):
     # print homeStats
     # print awayStats
 '''
+out = open("nba_stats.p", "rb")
+stats = pickle.load( out )
+out.close()
