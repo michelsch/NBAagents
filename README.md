@@ -1,6 +1,9 @@
 # NBAagents
 Project for the Fall 2015 CS221 class at Stanford
 
+main.py:
+Run python main.py to run selected machine learning methods with feature set specified in either line 111 or 113. In order to change the feature set being used, uncomment either line and comment the other one out.
+
 master_scraper.py:
 
 Contains functions used to scrape nba.com for game schedule and then player stats.
@@ -48,7 +51,7 @@ miami_heat_games.py:
 Returns a tuple containing a list of the team names and a list of scores
 of all previously played Miami Heat games' for this year.'
 
-player_data.py: 
+player_data.py:
 
 Performs data scraping from ESNP.com to reuturn stats for each player in the form of a dict of teams which links to another dict for each player of that team whose value is a list of stats with the following indexes (phew!):
 0 -> GP -- Games Played
@@ -84,7 +87,7 @@ example usage:
 teamsAndPlayerStats['Miami Heat']['Chris Bosh'][0]
 games played for Chris Bosh, who is in the Miami Heat
 
-player.py: 
+player.py:
 
 Implements a Class team and a game MVP, which can be used for multiple Markov simulations. Transition probabilties are a combination of player stats and hard-coded constants to reduce noise. The algorithm still has room for refinement.
 

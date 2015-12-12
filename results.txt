@@ -1,3 +1,37 @@
+F I N A L    M O D E L S    A N D    P R E D I C T I O N    A C C U R A C Y
+===================================================
+-------models = [linear_model.LinearRegression(),  linear_model.Ridge (alpha = .1),  linear_model.Ridge (alpha = .5), linear_model.Ridge (alpha = .9), linear_model.Lasso(alpha = 0.1, max_iter = 500000), linear_model.Lasso(alpha = 0.5, max_iter = 500000), linear_model.Lasso(alpha = 0.9, max_iter = 500000), svm.SVC(gamma=0.001)]
+keys ('time_played', '+/-', 'ba')
+training:  141 0.742105263158
+test:  35 0.729166666667
+training:  141 0.742105263158
+test:  35 0.729166666667
+training:  141 0.742105263158
+test:  35 0.729166666667
+training:  141 0.742105263158
+test:  35 0.729166666667
+training:  140 0.736842105263
+test:  34 0.708333333333
+training:  133 0.7
+test:  33 0.6875
+training:  132 0.694736842105
+test:  31 0.645833333333
+training:  190 1.0
+test:  27 0.5625
+
+modelLabels = ['Least-Squares Linear Regression', 'Ridge Linear Regression, alpha = 0.1', 'Ridge Linear Regression, alpha = 0.5', 'Ridge Linear Regression, alpha = 0.9', 'Lasso Linear Regression, alpha = 0.1', 'Lasso Linear Regression, alpha = 0.5', 'Lasso Linear Regression, alpha = 0.9', 'Support Vector Machine, gamma = 0.001, C = 1000', 'Support Vector Machine, gamma = 0.0, C = 1000']
+---------------------
+models = [svm.SVC(gamma=0.001, C = 1000), svm.SVC(kernel = 'linear',C = 1000, gamma = 0.0)]
+training:  190 1.0
+test:  27 0.5625
+training:  190 1.0
+test:  31 0.645833333333
+['time_played', 'fgm-a', '3pm-a', 'ftm-a', '+/-', 'off', 'def', 'tot', 'ast', 'pf', 'st', 'to', 'bs', 'ba', 'pts']
+========================================================
+========================================================
+
+
+
 #relevantKeys =['time_played', 'fgm-a', '3pm-a', 'ftm-a', '+/-', 'off', 'def', 'tot', 'ast', 'pf', 'st', 'to', 'bs', 'ba', 'pts']
 models = [linear_model.LinearRegression(),  linear_model.Ridge (alpha = .1),  linear_model.Ridge (alpha = .5), linear_model.Ridge (alpha = .9), linear_model.Lasso(alpha = 0.1, max_iter = 500000), linear_model.Lasso(alpha = 0.5, max_iter = 500000), linear_model.Lasso(alpha = 0.9, max_iter = 500000), svm.SVC(gamma=0.001)]
 training:  190 1.0
