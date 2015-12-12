@@ -51,7 +51,7 @@ for opponent in team_names:
 if check_dimensions(array_X,13*28):
   #clf0 = linear_model.LinearRegression()
   #clf = linear_model.Ridge (alpha = .5)
-  clf = linear_model.Lasso(alpha = 0.1)
+  clf = linear_model.Lasso(alpha = 0.1, max_iter = 500000)
   #clf = svm.SVC(gamma=0.001)
   #only look at first 10 games
   clf.fit(array_X[:60],array_Y[:60])

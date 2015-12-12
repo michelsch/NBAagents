@@ -11,6 +11,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pickle
 import master_scraper
+from operator import attrgetter
+from sklearn import linear_model, svm, datasets, metrics, preprocessing
+
+
 # Stochastic Gradient Descent
 def SGD(trainExamples, testExamples, featureExtractor):
     '''
@@ -89,8 +93,8 @@ def extractMadeAttempted(s):
 
 # Setup data pipeline
 out = open("nba_stats.p", "rb")
-stats = pickle.load( out )
-print stats[0]
+stats = pickle.load( out ) # all previous game stats for this season
+#print stats[0]
 out.close()
 teams = []
 
@@ -98,16 +102,70 @@ temp_stats = master_scraper.getLastNGameStats(stats, 5, 'Knicks', len(stats))
 print temp_stats
 
 # Find the starting point for training
-features = []
-outcomes = []
-for i in range(len(stats)):
+allFeatureLists = [] # list of lists of features (each list of features corresponds to the player stats from past 5 games)
+allOutcomes = [] # list of point differences / point spreads (home team score - away team score)
+#relevantKeys =['time_played', 'fgm-a', '3pm-a', 'ftm-a', '+/-', 'off', 'def', 'tot', 'ast', 'pf', 'st', 'to', 'bs', 'ba', 'pts']
+relevantKeys =['fgm-a', '3pm-a', 'ftm-a', '+/-', 'off', 'def', 'ast', 'pf', 'st', 'to']
+#relevantKeys =['time_played', 'fgm-a', '3pm-a', 'ftm-a', '+/-', 'off', 'def', 'tot', 'ast', 'pf', 'st', 'to', 'bs', 'ba', 'pts']
+for i in range(53, len(stats)):
+    featureList = [] # List of features for a particular game
     game = stats[i]
+
     homeTeam = game['home_team']
     awayTeam = game['away_team']
     homeStats = master_scraper.getLastNGameStats(stats, 5, homeTeam, i)
     awayStats = master_scraper.getLastNGameStats(stats, 5, awayTeam, i)
-    if len(homeStats) < 5 or len(awayStats) < 5:
+    if len(homeStats) == 0 or len(awayStats) == 0:
         continue
-    else:
-        print 'home stats for games', i-5, 'to', i, homeStats
-        print 'away stats for games', i-5, 'to', i, awayStats
+    print 'home stats for games', i-5, 'to', i, homeStats
+    print 'away stats for games', i-5, 'to', i, awayStats
+    # convert minutes
+    for stat in homeStats:
+        print 'stat', stat
+        stat['time_played'] = convertTime(stat['time_played'])
+    for stat in awayStats:
+        stat['time_played'] = convertTime(stat['time_played'])
+    homeStats = sorted(homeStats, key=lambda stat: stat['time_played'])
+    awayStats = sorted(awayStats, key=lambda stat: stat['time_played'])
+    for stat in homeStats:
+        for key in relevantKeys:
+            if '-a' in key:
+                madeAttemptedFeatures = extractMadeAttempted(stat[key])
+                featureList.append(madeAttemptedFeatures[0])
+                featureList.append(madeAttemptedFeatures[1])
+            else:
+                featureList.append(float(stat[key]))
+    allFeatureLists.append(featureList)
+
+    homeScore = 0
+    awayScore = 0
+
+    for p in game['home_team_player_stats']:
+        if p['name'] == 'Total':
+            homeScore = int(p['pts'])
+    for p in game['away_team_player_stats']:
+        if p['name'] == 'Total':
+            awayScore = int(p['pts'])
+    allOutcomes.append(homeScore - awayScore)
+
+print len(allOutcomes)
+
+models = [linear_model.LinearRegression(),  linear_model.Ridge (alpha = .1),  linear_model.Ridge (alpha = .5), linear_model.Ridge (alpha = .9), linear_model.Lasso(alpha = 0.1, max_iter = 500000), linear_model.Lasso(alpha = 0.5, max_iter = 500000), linear_model.Lasso(alpha = 0.9, max_iter = 500000), svm.SVC(gamma=0.001)]
+for clf in models:
+    clf.fit(allFeatureLists[:190],allOutcomes[:190])
+    predictions = clf.predict(allFeatureLists)
+    #print predictions
+    #print allOutcomes
+    correctCt = 0
+    for i in range(0,190):
+        #print predictions[i], allOutcomes[i], predictions[i] * allOutcomes[i] > 0
+        if predictions[i] * allOutcomes[i] > 0:
+            correctCt += 1
+    print 'training: ', correctCt, correctCt / 190.0
+    correctCt = 0
+    for i in range(190,len(predictions)):
+        #print predictions[i], allOutcomes[i], predictions[i] * allOutcomes[i] > 0
+        if predictions[i] * allOutcomes[i] > 0:
+            correctCt += 1
+    print 'test: ', correctCt, correctCt / 48.0
+
