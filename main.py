@@ -107,8 +107,13 @@ allRelevantKeys =['time_played', 'fgm-a', '3pm-a', 'ftm-a', '+/-', 'off', 'def',
 bestTestKeys = []
 bestTestAcc = 0
 bestTrainAcc = 0
+
+relevantKeysPicked = [allRelevantKeys]
+#relevantKeysPicked =
+#relevantKeysPicked = itertools.combinations(allRelevantKeys, i)
+#if selected
 for i in range(1, len(allRelevantKeys)):
-    for relevantKeys in [allRelevantKeys]: #itertools.combinations(allRelevantKeys, i):
+    for relevantKeys in relevantKeysPicked:
         print 'keys', relevantKeys
         # Find the starting point for training
         allFeatureLists = [] # list of lists of features (each list of features corresponds to the player stats from past 5 games)

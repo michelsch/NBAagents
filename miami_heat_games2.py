@@ -28,7 +28,7 @@ def miami_heat_games():
           scores.append(difference)
         else:
           scores.append(-difference)
-          '''
+
   page = urllib.urlopen("http://espn.go.com/nba/team/schedule/_/name/mia/miami-heat")
   soup = bs(page)
   print len(scores)
@@ -51,5 +51,4 @@ def miami_heat_games():
           scores.append(difference)
         else:
           scores.append(-difference)
-          '''
   return (team_names, scores)
