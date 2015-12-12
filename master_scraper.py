@@ -327,9 +327,8 @@ def getLastNGameStats(data, numGames, team, gameStart):
 		result.append(player)
 
 	return result
-'''
-generateLinks(datetime.date(2015, 10, 27), datetime.date.today())
 
+generateLinks(datetime.date(2015, 10, 27), datetime.date.today())
 links = open('./links').read().splitlines()
 
 stats = []
@@ -344,31 +343,3 @@ out = open("nba_stats.p", "rb")
 stats = pickle.load( out )
 out.close()
 teams = []
-
-temp_stats = getLastNGameStats(stats, 5, 'Knicks', len(stats))
-print temp_stats
-# printStats(stats[0]['home_team_player_stats'][0])
-'''
-'''
-out = open("nba_stats.p", "rb")
-stats = pickle.load( out )
-out.close()
-
-# Find the starting point for training
-features = []
-outcomes = []
-for i in range(len(stats)):
-    game = stats[i]
-    homeTeam = game['home_team']
-    awayTeam = game['away_team']
-    homeStats = getLastNGameStats(stats, 5, homeTeam, i)
-    awayStats = getLastNGameStats(stats, 5, awayTeam, i)
-    if len(homeStats) < 5 or len(awayStats) < 5:
-        continue
-
-    # print homeStats
-    # print awayStats
-'''
-out = open("nba_stats.p", "rb")
-stats = pickle.load( out )
-out.close()
