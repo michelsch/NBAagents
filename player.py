@@ -437,8 +437,15 @@ def simulate_games(home_team,away_team):
     test_game.computeStates()
     if test_game.home_team_score > test_game.away_team_score:
       home_wins += 1
-    else:
+    elif test_game.home_team_score < test_game.away_team_score:
       away_wins += 1
   print home_team + " wins " + str(home_wins*100/(home_wins+away_wins)) + " percent of the time!"
   return home_wins*100/(home_wins+away_wins)
 
+'''Predictions for 6 of Friday's NBA Games'''
+simulate_games('Cleveland Cavaliers','Orlando Magic')
+simulate_games('Miami Heat','Indiana Pacers')
+simulate_games('Milwaukee Bucks','Toronto Raptors')
+simulate_games('Charlotte Hornets','Memphis Grizzlies')
+simulate_games('Oklahoma City Thunder','Utah Jazz')
+simulate_games('Los Angeles Lakers','San Antonio Spurs')
