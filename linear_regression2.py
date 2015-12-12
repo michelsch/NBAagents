@@ -23,7 +23,8 @@ def feature_extractor(teamsAndPlayerStats,opponent):
         #print each
         #print teamsAndPlayerStats[each][player]
         #print ''
-        features.extend(teamsAndPlayerStats[each][player])
+        features.append(teamsAndPlayerStats[each][player][2])
+
   return features
 
 #check if all arrays in array  have the same dim
@@ -48,7 +49,7 @@ for opponent in team_names:
   array_X.append(feature_extractor(teamsAndPlayerStats, opponent)[:(13*28)])
   #append score
 
-if check_dimensions(array_X,13*28):
+if True:#check_dimensions(array_X,13*28):
   #clf0 = linear_model.LinearRegression()
   #clf = linear_model.Ridge (alpha = .5)
   clf = linear_model.Lasso(alpha = 0.1, max_iter = 500000)

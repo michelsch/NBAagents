@@ -1,0 +1,148 @@
+#relevantKeys =['time_played', 'fgm-a', '3pm-a', 'ftm-a', '+/-', 'off', 'def', 'tot', 'ast', 'pf', 'st', 'to', 'bs', 'ba', 'pts']
+models = [linear_model.LinearRegression(),  linear_model.Ridge (alpha = .1),  linear_model.Ridge (alpha = .5), linear_model.Ridge (alpha = .9), linear_model.Lasso(alpha = 0.1, max_iter = 500000), linear_model.Lasso(alpha = 0.5, max_iter = 500000), linear_model.Lasso(alpha = 0.9, max_iter = 500000), svm.SVC(gamma=0.001)]
+training:  190 1.0
+test:  22 0.458333333333
+training:  190 1.0
+test:  23 0.479166666667
+training:  189 0.994736842105
+test:  24 0.5
+training:  187 0.984210526316
+test:  23 0.479166666667
+training:  179 0.942105263158
+test:  22 0.458333333333
+training:  170 0.894736842105
+test:  23 0.479166666667
+training:  163 0.857894736842
+test:  20 0.416666666667
+training:  190 1.0
+test:  27 0.5625
+
+
+relevantKeys =['fgm-a', '3pm-a', 'ftm-a', '+/-', 'off', 'def', 'ast', 'pf', 'st', 'to']
+models = [linear_model.LinearRegression(),  linear_model.Ridge (alpha = .1),  linear_model.Ridge (alpha = .5), linear_model.Ridge (alpha = .9), linear_model.Lasso(alpha = 0.1, max_iter = 500000), linear_model.Lasso(alpha = 0.5, max_iter = 500000), linear_model.Lasso(alpha = 0.9, max_iter = 500000), svm.SVC(gamma=0.001)]
+training:  173 0.910526315789
+test:  24 0.5
+training:  173 0.910526315789
+test:  24 0.5
+training:  171 0.9
+test:  22 0.458333333333
+training:  171 0.9
+test:  23 0.479166666667
+training:  171 0.9
+test:  21 0.4375
+training:  163 0.857894736842
+test:  26 0.541666666667
+training:  159 0.836842105263
+test:  23 0.479166666667
+training:  190 1.0
+test:  27 0.5625
+
+models = [svm.SVC(gamma=0.001, C = 1000), svm.SVC(kernel = 'linear',C = 1000, gamma = 0.0)]
+training:  190 1.0
+test:  27 0.5625
+training:  190 1.0
+test:  31 0.645833333333
+['time_played', 'fgm-a', '3pm-a', 'ftm-a', '+/-', 'off', 'def', 'tot', 'ast', 'pf', 'st', 'to', 'bs', 'ba', 'pts']
+
+models = [linear_model.LinearRegression(),  linear_model.Ridge (alpha = .1),  linear_model.Ridge (alpha = .5), linear_model.Ridge (alpha = .9), linear_model.Lasso(alpha = 0.1, max_iter = 500000), linear_model.Lasso(alpha = 0.5, max_iter = 500000), linear_model.Lasso(alpha = 0.9, max_iter = 500000), svm.SVC(gamma=0.001)]
+keys ('ftm-a', '+/-', 'pts')
+training:  136 0.715789473684
+test:  30 0.625
+training:  136 0.715789473684
+test:  30 0.625
+training:  136 0.715789473684
+test:  30 0.625
+training:  136 0.715789473684
+test:  30 0.625
+training:  135 0.710526315789
+test:  29 0.604166666667
+training:  133 0.7
+test:  31 0.645833333333
+training:  131 0.689473684211
+test:  32 0.666666666667
+training:  190 1.0
+
+training:  190 1.0
+test:  27 0.5625
+training:  190 1.0
+test:  31 0.645833333333
+training:  190 1.0
+test:  31 0.645833333333
+training:  190 1.0
+test:  31 0.645833333333
+training:  190 1.0
+test:  31 0.645833333333
+training:  190 1.0
+test:  27 0.5625
+training:  190 1.0
+test:  27 0.5625
+training:  190 1.0
+test:  27 0.5625
+training:  190 1.0
+test:  30 0.625
+['time_played', 'fgm-a', '3pm-a', 'ftm-a', '+/-', 'off', 'def', 'tot', 'ast', 'pf', 'st', 'to', 'bs', 'ba', 'pts']
+        models = [svm.SVC(gamma=0.001, C = 1000), svm.SVC(kernel = 'linear',C = 1000, gamma = 0.0), svm.SVC(kernel = 'linear',C = 100, gamma = 0.0), svm.SVC(kernel = 'linear',C = 10000, gamma = 0.0), svm.SVC(kernel = 'linear',C = 1000, gamma = 'auto'), svm.SVC(kernel = 'rbf',C = 1000, gamma = 'auto'), svm.SVC(kernel = 'rbf', gamma = 'auto'), svm.SVC(kernel = 'rbf',C = 10000, gamma = 'auto'), svm.SVC(kernel = 'poly',C = 1000, gamma = 'auto')]
+
+
+Case	Solver
+Small dataset or L1 penalty	“liblinear”
+Multinomial loss	“lbfgs” or newton-cg”
+Large dataset	“sag”
+
+LONG RN
+keys ('+/-', 'bs', 'ba')
+training:  141 0.742105263158
+test:  31 0.645833333333
+training:  141 0.742105263158
+test:  31 0.645833333333
+training:  141 0.742105263158
+test:  31 0.645833333333
+training:  141 0.742105263158
+test:  31 0.645833333333
+training:  142 0.747368421053
+test:  32 0.666666666667
+training:  135 0.710526315789
+test:  32 0.666666666667
+training:  136 0.715789473684
+test:  30 0.625
+training:  188 0.989473684211
+test:  27 0.5625
+
+
+models = [linear_model.LinearRegression(),  linear_model.Ridge (alpha = .1),  linear_model.Ridge (alpha = .5), linear_model.Ridge (alpha = .9), linear_model.Lasso(alpha = 0.1, max_iter = 500000), linear_model.Lasso(alpha = 0.5, max_iter = 500000), linear_model.Lasso(alpha = 0.9, max_iter = 500000), svm.SVC(gamma=0.001)]
+keys ('ftm-a', 'ast', 'ba')
+training:  136 0.715789473684
+test:  34 0.708333333333
+training:  136 0.715789473684
+test:  34 0.708333333333
+training:  137 0.721052631579
+test:  34 0.708333333333
+training:  137 0.721052631579
+test:  34 0.708333333333
+training:  139 0.731578947368
+test:  34 0.708333333333
+training:  140 0.736842105263
+test:  34 0.708333333333
+training:  143 0.752631578947
+test:  34 0.708333333333
+training:  164 0.863157894737
+test:  26 0.541666666667
+
+-------models = [linear_model.LinearRegression(),  linear_model.Ridge (alpha = .1),  linear_model.Ridge (alpha = .5), linear_model.Ridge (alpha = .9), linear_model.Lasso(alpha = 0.1, max_iter = 500000), linear_model.Lasso(alpha = 0.5, max_iter = 500000), linear_model.Lasso(alpha = 0.9, max_iter = 500000), svm.SVC(gamma=0.001)]
+keys ('ftm-a', '+/-', 'pts')
+training:  136 0.715789473684
+test:  30 0.625
+training:  136 0.715789473684
+test:  30 0.625
+training:  136 0.715789473684
+test:  30 0.625
+training:  136 0.715789473684
+test:  30 0.625
+training:  135 0.710526315789
+test:  29 0.604166666667
+training:  133 0.7
+test:  31 0.645833333333
+training:  131 0.689473684211
+test:  32 0.666666666667
+training:  190 1.0
+test:  27 0.5625
