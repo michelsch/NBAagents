@@ -5,6 +5,7 @@ import util
 import math
 import random
 import player_data
+import numpy
 
 teamsAndLinks = player_data.teamsAndLinks()
 teamsAndStats = player_data.teamsAndStats(teamsAndLinks)
@@ -89,39 +90,55 @@ class MDP:
     self.time_left = 42
     self.home_team = home_team
     self.away_team = away_team
-    self.home_players_and_minutes_played = [(player,latest_stats[home_team][player][2]) for player in latest_stats[home_team]]
-    self.away_players_and_minutes_played = [(player,latest_stats[away_team][player][2]) for player in latest_stats[away_team]]
     self.home_team_score = 0
     self.away_team_score = 0
+
+    self.home_players_and_minutes_played = [(player,latest_stats[home_team][player][2]) for player in latest_stats[home_team]]
+    self.away_players_and_minutes_played = [(player,latest_stats[away_team][player][2]) for player in latest_stats[away_team]]
+
     self.home_team_picked_players = []
     self.away_team_picked_players = []
 
+    #calculate all average stats for a team
+    self.home_team_averages = [0]*28
+    for player in latest_stats[home_team]:
+      a = numpy.array(latest_stats[home_team][player])
+      self.home_team_averages += numpy.add(self.home_team_averages,a)
+    self.home_team_averages = numpy.divide(self.home_team_averages,len(latest_stats[home_team]))
+    self.away_team_averages = [0]*28
+    for player in latest_stats[away_team]:
+      a = numpy.array(latest_stats[away_team][player])
+      self.away_team_averages += numpy.add(self.away_team_averages,a)
+    self.away_team_averages = numpy.divide(self.away_team_averages,len(latest_stats[away_team]))
+
   # Return the start state.
-  #  returns a tuple of player holding the ball,
-  # starting picked players and initial time left of 42 min as follows:
-  # (player_holding,time_left, home_team_picked_players, away_team_picked_players)
+  #  returns a tuple of player holding the ball, team holding the ball
+  # time left and respective scores for home and away teams
   def startState(self):
     for i in range(0,5):
       choices = WeightedChoice(self.home_players_and_minutes_played)
       picked_player = choices.pick()
-      self.home_team_picked_players.append(picked_player)
       minutes = latest_stats[self.home_team][picked_player][2]
+      self.home_team_picked_players.append((picked_player,minutes))
       self.home_players_and_minutes_played.remove((picked_player,minutes))
     for i in range(0,5):
       choices = WeightedChoice(self.away_players_and_minutes_played)
       picked_player = choices.pick()
-      self.away_team_picked_players.append(picked_player)
       minutes = latest_stats[self.away_team][picked_player][2]
+      self.away_team_picked_players.append((picked_player,minutes))
       self.away_players_and_minutes_played.remove((picked_player,minutes))
-    player_holding = random.choice(self.home_team_picked_players + self.away_team_picked_players)
-    return (player_holding,self.time_left,self.home_team_picked_players,self.away_team_picked_players)
 
-  def isEnd(self):
-    return self.time_left == 0
+    player_holding = random.choice([player[0] for player in self.home_team_picked_players]+[player[0] for player in self.away_team_picked_players])
+    if player_holding in latest_stats[self.home_team]:
+      team_holding = self.home_team
+    else:
+      team_holding = self.away_team
+    #print 'Game starting! Player in possesion: ' + player_holding + '. Team: ' + team_holding
+    return (player_holding,team_holding,self.time_left,self.home_team_score,self.away_team_score)
 
     # Return set of actions possible from |state|.
   def actions(self, state):
-    return ['no change','pass_ball','lose_ball','try_to_score']
+    return ['stay','move','pass_ball','try_to_score']
 
     # Return a list of (newState, prob, reward) tuples corresponding to edges
     # coming out of |state|.
@@ -129,16 +146,161 @@ class MDP:
     #   state = s, action = a, newState = s', prob = T(s, a, s'), reward = Reward(s, a, s')
     # If IsEnd(state), return the empty list.
   def succAndProbReward(self, state, action):
-    if isEnd(self):
+
+    if self.time_left == 0:
+      #print 'Game over! Final Score: ' + self.home_team + '-'+ str(self.home_team_score) + ' ' + self.away_team + '-' + str(self.away_team_score)
       return []
-    if action == 'no change':
-      pass
+
+    player_holding = state[0]
+    team_holding = state[1]
+
+    def player_scores_free_throw(player):
+      try:
+        percent = latest_stats[self.home_team][player][22]*100
+      except:
+        percent = latest_stats[self.away_team][player][22]*100
+      return random.randrange(100) < percent
+
+    def player_scores_field_goal(player):
+      try:
+        percent = latest_stats[self.home_team][player][16]*100
+      except:
+        percent = latest_stats[self.away_team][player][16]*100
+      return random.randrange(100) < percent
+
+    #all actions decrease the time
+    if action == 'stay':
+      #print player_holding + ' of ' + team_holding + ' is idle.'
+      self.time_left -= 1
+      #possibility 1 = nothing happens, but player decreases chance to score by 1%
+      if player_holding in latest_stats[self.home_team]:
+        latest_stats[self.home_team][player_holding][16] *= 0.99
+      else:
+        latest_stats[self.away_team][player_holding][16] *= 0.99
+      newState = (player_holding,team_holding,self.time_left,self.home_team_score,self.away_team_score)
+      p1 = (newState,1.0/3,0)
+      #possibility 2 = ball taken from player by opposing team
+      if player_holding in latest_stats[self.home_team]:
+        choices = WeightedChoice(self.away_team_picked_players)
+        player_holding  = choices.pick()
+        team_holding = self.away_team
+      else:
+        choices = WeightedChoice(self.home_team_picked_players)
+        player_holding  = choices.pick()
+        team_holding = self.home_team
+      newState = (player_holding,team_holding,self.time_left,self.home_team_score,self.away_team_score)
+      p2 = (newState,1.0/3,-1)
+      #possibility 3 = player commits a foul. assume same player as possiblity 2 has ball
+      if player_scores_free_throw(player_holding):
+        #print player_holding + ' of ' + team_holding + ' scores a free throw!'
+        if team_holding == self.away_team:
+          self.home_team_score += 1
+        else:
+          self.away_team_score +=1
+      p3 = (newState,1.0/3,-1)
+      return [p1,p2,p3]
+
+    if action == 'move':
+      #print player_holding + ' of ' + team_holding + ' is moving.'
+      self.time_left -= 1
+      #possibility 1 = nothing happens, but player increases chance to score by 1%
+      if player_holding in latest_stats[self.home_team]:
+        latest_stats[self.home_team][player_holding][16] *= 1.01
+      else:
+        latest_stats[self.away_team][player_holding][16] *= 1.01
+      newState = (player_holding,team_holding,self.time_left,self.home_team_score,self.away_team_score)
+      p1 = (newState,1.0/3,0)
+      #possibility 2 = ball taken from player by opposing team
+      if player_holding in latest_stats[self.home_team]:
+        choices = WeightedChoice(self.away_team_picked_players)
+        player_holding  = choices.pick()
+        team_holding = self.away_team
+      else:
+        choices = WeightedChoice(self.home_team_picked_players)
+        player_holding  = choices.pick()
+        team_holding = self.home_team
+      newState = (player_holding,team_holding,self.time_left,self.home_team_score,self.away_team_score)
+      p2 = (newState,1.0/3,-1)
+      #possibility 3 = player commits a foul. assume same player as possiblity 2 has ball
+      if player_scores_free_throw(player_holding):
+        #print player_holding + ' of ' + team_holding + ' scores a free throw!'
+        if team_holding == self.away_team:
+          self.home_team_score += 1
+        else:
+          self.away_team_score +=1
+      p3 = (newState,1.0/3,-1)
+      return [p1,p2,p3]
+
     if action == 'pass_ball':
-      pass
-    if action == 'lose_ball':
-      pass
+      #print player_holding + ' of ' + team_holding + ' passing the ball!'
+      self.time_left -= 1
+      #possiblity 1 = another player in the team gains possesion of the ball
+      if player_holding in latest_stats[self.home_team]:
+        choices = WeightedChoice(self.home_team_picked_players)
+        player_holding  = choices.pick()
+      else:
+        choices = WeightedChoice(self.away_team_picked_players)
+        player_holding  = choices.pick()
+      newState = (player_holding,team_holding,self.time_left,self.home_team_score,self.away_team_score)
+      p1 = (newState,4.0/5,1)
+      #possiblity 2 = another player in the opposing team gains posession of the ball
+      if player_holding in latest_stats[self.home_team]:
+        choices = WeightedChoice(self.away_team_picked_players)
+        player_holding  = choices.pick()
+        team_holding = self.away_team
+      else:
+        choices = WeightedChoice(self.home_team_picked_players)
+        player_holding  = choices.pick()
+        team_holding = self.home_team
+      newState = (player_holding,team_holding,self.time_left,self.home_team_score,self.away_team_score)
+      p2 = (newState,1.0/5,-1)
+      return [p1,p2]
+
     if action == 'try_to_score':
-      pass
+      #print player_holding + ' of ' + team_holding + ' trying to score!'
+      self.time_left -= 1
+      #possiblity 1  = another player in the team gains possesion of the ball
+      if player_holding in latest_stats[self.home_team]:
+        choices = WeightedChoice(self.home_team_picked_players)
+        player_holding  = choices.pick()
+      else:
+        choices = WeightedChoice(self.away_team_picked_players)
+        player_holding  = choices.pick()
+      newState = (player_holding,team_holding,self.time_left,self.home_team_score,self.away_team_score)
+      newState = (player_holding,team_holding,self.time_left,self.home_team_score,self.away_team_score)
+      try:
+        prob = (1-latest_stats[self.home_team][player_holding][16])/2
+      except:
+        prob = (1-latest_stats[self.away_team][player_holding][16])/2
+      p1 = (newState,prob,1)
+      #possiblity 2 = field goal
+      if player_scores_field_goal(player_holding):
+        #print player_holding + ' of ' + team_holding + ' scores a field goal!'
+        if team_holding == self.away_team:
+          self.home_team_score += 3
+        else:
+          self.away_team_score +=3
+      if player_holding in latest_stats[self.home_team]:
+        choices = WeightedChoice(self.home_team_picked_players)
+        player_holding  = choices.pick()
+      else:
+        choices = WeightedChoice(self.away_team_picked_players)
+        player_holding  = choices.pick()
+      newState = (player_holding,team_holding,self.time_left,self.home_team_score,self.away_team_score)
+      try:
+        prob = 1-latest_stats[self.home_team][player_holding][16]
+      except:
+        prob = 1-latest_stats[self.away_team][player_holding][16]
+      p2 = (newState,prob,3)
+      #possiblity 3 = another player in the opposing team gains posession of the ball
+      newState = (player_holding,team_holding,self.time_left,self.home_team_score,self.away_team_score)
+      try:
+        prob = (1-latest_stats[self.home_team][player_holding][16])/2
+      except:
+        prob = (1-latest_stats[self.away_team][player_holding][16])/2
+      p3 = (newState,prob,-1)
+      return [p1,p2,p3]
+
 
   def discount(self): return 1
 
@@ -226,6 +388,57 @@ class PriorityQueue:
   def isEmpty(self):
     return len(self.heap) == 0
 
+class ValueIteration(MDP):
+    '''
+    Solve the MDP using value iteration.  Your solve() method must set
+    - self.V to the dictionary mapping states to optimal values
+    - self.pi to the dictionary mapping states to an optimal action
+    Note: epsilon is the error tolerance: you should stop value iteration when
+    all of the values change by less than epsilon.
+    The ValueIteration class is a subclass of util.MDPAlgorithm (see util.py).
+    '''
+    def solve(self, mdp, epsilon=0.001):
+        mdp.computeStates()
+        def computeQ(mdp, V, state, action):
+            # Return Q(state, action) based on V(state).
+            return sum(prob * (reward + mdp.discount() * V[newState]) \
+                            for newState, prob, reward in mdp.succAndProbReward(state, action))
 
-test_game = MDP('Miami Heat','Orlando Magic')
-print test_game.startState()
+        def computeOptimalPolicy(mdp, V):
+            # Return the optimal policy given the values V.
+            pi = {}
+            for state in mdp.states:
+                pi[state] = max((computeQ(mdp, V, state, action), action) for action in mdp.actions(state))[1]
+            return pi
+
+        V = collections.Counter()  # state -> value of state
+        numIters = 0
+        while True:
+            newV = {}
+            for state in mdp.states:
+                newV[state] = max(computeQ(mdp, V, state, action) for action in mdp.actions(state))
+            numIters += 1
+            if max(abs(V[state] - newV[state]) for state in mdp.states) < epsilon:
+                V = newV
+                break
+            V = newV
+
+        # Compute the optimal policy now
+        pi = computeOptimalPolicy(mdp, V)
+        print "ValueIteration: %d iterations" % numIters
+        self.pi = pi
+        self.V = V
+
+def simulate_games(home_team,away_team):
+  home_wins = 0
+  away_wins = 0
+  for i in range(0,1000):
+    test_game = MDP(home_team,away_team)
+    test_game.computeStates()
+    if test_game.home_team_score > test_game.away_team_score:
+      home_wins += 1
+    else:
+      away_wins += 1
+  print home_team + " wins " + str(home_wins*100/(home_wins+away_wins)) + " percent of the time!"
+  return home_wins*100/(home_wins+away_wins)
+
